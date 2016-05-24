@@ -1,0 +1,6 @@
+8E6F6F815B50F474CF0DC22D4F400725
+Teste
+D29B4C151EF961633E355BA94F0BB51FFD99AFCC
+Minha aplicação está funcionando perfeitamente.
+9E063378E95144604927EBE10825CAAFEB025416
+TEste de quebra de palavra em texto corrido e contínuo na minha janela de encriptação de HASH. (Padrão SHA-1).
