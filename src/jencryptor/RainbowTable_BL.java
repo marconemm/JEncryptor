@@ -11,27 +11,32 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.zip.DataFormatException;
 
 /**
  * @author Marcone Melo Mendonça
- * @version 1.0
+ * @version 1.1
  * @see https://github.com/marconemm/JEncryptor
  * @desc Class "RainbowTable Basic Layer", destined to make records in some
  * specified text file.
  */
 class RainbowTable_BL {
+    
+    private final File myRainbowTableFile;
 
-    private final String path = "F:/Usuários/CoNe/Documents/ADS_UNIBRATEC/2ºPeríodo/SIO/JEncryptor/src/jencryptor/myRainbowTable.txt";
+    public RainbowTable_BL(File myRainbowTableFile) {
+        
+        this.myRainbowTableFile = myRainbowTableFile;
+        
+    }
 
     public void write(String myHashCode) throws IOException {
-
-        File file = new File(path);
-
-        if (!file.exists()) {
-            file.createNewFile();
+        
+        if (!myRainbowTableFile.exists()) {
+            myRainbowTableFile.createNewFile();
         }
-
-        FileWriter outPath = new FileWriter(file, true);
+        
+        FileWriter outPath = new FileWriter(myRainbowTableFile, true);
         try (PrintWriter pw = new PrintWriter(outPath)) {
 
             pw.println(myHashCode);
@@ -40,21 +45,26 @@ class RainbowTable_BL {
         }
     }
 
-    public String read(String myHashCode) throws IOException {
+    public String read(String myHashCode) throws IOException, DataFormatException {
 
-        FileReader file = new FileReader(path);
+        //FileReader file = new FileReader(filePath);
+        FileReader file = new FileReader(myRainbowTableFile.getPath());
         BufferedReader br = new BufferedReader(file);
         String line = br.readLine();
 
-        while (line != null) {
-            if (myHashCode.equals(line)) {
-                return br.readLine();
-            } else {
-                br.readLine(); // jump one row.
-                line = br.readLine();
-            }
-        }
+        //if (line.equals("true")) {
 
+            while (line != null) {
+                if (myHashCode.equals(line)) {
+                    return br.readLine();
+                } else {
+                    line = br.readLine();
+                }
+            }
+       // } else {
+       //     String msg = "O arquivo\n" + myRainbowTableFile.getPath() + "\né invalido.";
+        //    throw new DataFormatException(msg);
+       // }
         return null;
     }
 }

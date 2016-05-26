@@ -4,15 +4,15 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
  * @author Marcone Melo Mendonça
- * @version 1.0
+ * @version 1.1
  * @see https://github.com/marconemm/JEncryptor
  * @desc Class "Main Graphic User Interface". It's the application main window.
  */
@@ -24,8 +24,52 @@ public class Main_GUI extends javax.swing.JDialog {
 
     public Main_GUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        this.myRainbowTable = new RainbowTable_BL();
-        initComponents();
+        File tempMyRainbowTableFile = null;
+        try {
+            //Open a whindow to find the *.txt file:
+            JFileChooser findFile = new JFileChooser();
+            msg = "Escolha um arquivo \"*.txt\" para \"RainbowTable\"";
+            findFile.setDialogTitle(msg);
+            findFile.showOpenDialog(rootPane);
+            while (!findFile.getSelectedFile().getAbsolutePath().endsWith(".txt")) {
+                msg = "Favor,\nselecione um arquivo de texto (*.txt)\npara \"RainbowTable\" ";
+                msg += "desta aplicação.";
+                JOptionPane.showMessageDialog(rootPane, msg, "Aviso:", JOptionPane.WARNING_MESSAGE);
+                findFile.setCurrentDirectory(new File(findFile.getSelectedFile().getAbsolutePath()));
+                findFile.setSelectedFile(null);
+                findFile.showOpenDialog(rootPane);
+                if (findFile.getSelectedFile() == null) {
+                    throw new NullPointerException();
+                }
+            }
+
+            if (findFile.getSelectedFile() != null) {
+                tempMyRainbowTableFile = findFile.getSelectedFile();
+            }
+
+        } catch (NullPointerException npe) {
+            //In case "abort file chooser dialog" (if cancel button was pressed):
+            npe.getMessage();
+            initComponents();
+        }
+
+        if (tempMyRainbowTableFile != null) {
+                this.myRainbowTable = new RainbowTable_BL(tempMyRainbowTableFile);
+                initComponents();
+        } else {
+            this.myRainbowTable = null;
+            initComponents();
+        }
+    }
+
+    private boolean isRunnable() {
+        if (myRainbowTable == null) {
+            msg = "Não é possível executar esta aplicação\n";
+            msg += "sem um arquivo \"*.txt\" como a \"RainbowTable\"";
+            JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -57,8 +101,14 @@ public class Main_GUI extends javax.swing.JDialog {
         jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("wertwert");
+        setTitle("Encriptar");
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/jencryptor/icon.png")));
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel_TextToEncryptAnchor.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Dados Necessários", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
 
@@ -274,7 +324,7 @@ public class Main_GUI extends javax.swing.JDialog {
 
             myRainbowTable.write(hashCode.getHashCodeStr());
             myRainbowTable.write(hashCode.getEncryptedTxt());
-            
+
         } catch (HeadlessException he) {
             msg = "Erro de Headless.\n\nErro: ";
             JOptionPane.showMessageDialog(null, msg + he.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -282,7 +332,8 @@ public class Main_GUI extends javax.swing.JDialog {
             msg = "NoSuchAlgorithm.\n\nErro: ";
             JOptionPane.showMessageDialog(null, msg + nsae.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            Logger.getLogger(Main_GUI.class.getName()).log(Level.SEVERE, null, ex);
+            msg = "IOException.\n\nErro: ";
+            JOptionPane.showMessageDialog(null, msg + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton_EncryptActionPerformed
 
@@ -292,9 +343,18 @@ public class Main_GUI extends javax.swing.JDialog {
     }//GEN-LAST:event_jButton_ClearActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        Decrypt_GUI dGUI = new Decrypt_GUI(this, true);
+        Decrypt_GUI dGUI = new Decrypt_GUI(this, false, myRainbowTable);
         dGUI.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        this.setVisible(false);
+        if (isRunnable()) {
+            this.setVisible(true);
+        } else {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_formWindowOpened
 
     public static void main(String args[]) {
 
@@ -318,39 +378,31 @@ public class Main_GUI extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Main_GUI dialog = new Main_GUI(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                Main_GUI mainWindow = new Main_GUI(new javax.swing.JFrame(), true);
+                mainWindow.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);
                     }
                 });
-                dialog.setVisible(true);
+                mainWindow.setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton_Clear;
     private javax.swing.JButton jButton_Copy;
     private javax.swing.JButton jButton_Encrypt;
-    private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenu jMenu_About;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel_TextEncrypteAnchor;
     private javax.swing.JPanel jPanel_TextEncrypted;
     private javax.swing.JPanel jPanel_TextToEncrypt;
     private javax.swing.JPanel jPanel_TextToEncryptAnchor;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JComboBox<String> jcb_CryptType;
     private javax.swing.JScrollPane jsp_TextToEncrypt;
     private javax.swing.JTextArea jta_TextEncrypted;

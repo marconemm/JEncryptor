@@ -4,20 +4,22 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.zip.DataFormatException;
 import javax.swing.JOptionPane;
 
 /**
  * @author Marcone Melo Mendonça
- * @version 1.0
+ * @version 1.1
  * @see https://github.com/marconemm/JEncryptor
  * @desc Class "Decrypt Graphic User Interface". It's the decryption window.
  */
 public class Decrypt_GUI extends javax.swing.JDialog {
-
-    public Decrypt_GUI(Main_GUI parent, boolean modal) {
-        super(parent, modal);
+    
+    private final RainbowTable_BL myRainbowTable;
+    
+    public Decrypt_GUI(Main_GUI fatherFrame, boolean modal, RainbowTable_BL myRainbowTable) {
+        super(fatherFrame, modal);
+        this.myRainbowTable = myRainbowTable;
         initComponents();
     }
 
@@ -40,6 +42,8 @@ public class Decrypt_GUI extends javax.swing.JDialog {
         jButton_Back = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Decriptar");
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/jencryptor/icon.png")));
         setResizable(false);
 
         jPanel_TextToDecryptAnchor.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Dados Necessários", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.ABOVE_TOP, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
@@ -208,7 +212,7 @@ public class Decrypt_GUI extends javax.swing.JDialog {
         String hasToDecrypt = jta_TextToDecrypt.getText();
         String msg = null;
 
-        RainbowTable_BL myRainbowTable = new RainbowTable_BL();
+       // RainbowTable_BL myRainbowTable = new RainbowTable_BL();
 
         try {
             String textDecrypted = myRainbowTable.read(hasToDecrypt);
@@ -222,6 +226,9 @@ public class Decrypt_GUI extends javax.swing.JDialog {
         } catch (IOException ioe) {
             msg = "Erro de Headless.\n\nErro: ";
             JOptionPane.showMessageDialog(null, msg + ioe.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (DataFormatException dfe) {
+            dfe.setStackTrace(null);
+            dfe = null;// Do nothing;
         }
 
     }//GEN-LAST:event_jButton_DecryptActionPerformed
